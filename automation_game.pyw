@@ -2,6 +2,7 @@ import pygame
 from box import Box
 from cursors import uparrow_bm
 from tkinter import Tk
+from button import Button
 
 # region Variables
 FPS = 120
@@ -68,10 +69,10 @@ def createScreenText(mouse_x, mouse_y, background, clock):
     pass
 
 def drawPlacementRect(background, rect, color, alpha):
-    rect_surf = pygame.Surface(pygame.Rect(rect).size)
-    rect_surf.set_alpha(alpha)
-    pygame.draw.rect(rect_surf, color, rect_surf.get_rect())
-    background.blit(rect_surf, rect)
+    placement_surf = pygame.Surface(rect.size)
+    placement_surf.set_alpha(alpha)
+    placement_surf.fill(color)
+    background.blit(placement_surf, rect)
 
 def makePlacementBox(valid_x, valid_y, mouse_x, mouse_y, all_objects):
     for vx in valid_x:
@@ -139,6 +140,9 @@ def getValidY(validy):
         validy.append(y_iter)
         y_iter += box_size + box_buffer
 
+def buttonFunction():
+    print("Click")
+
 # endregion
         
 mapsize, box_buffer, box_size = calculateMap(screensize, boxes_per_row, edge_buffer)
@@ -174,11 +178,16 @@ def main():
     all_objects = {
         "Boxes": [],
         "ActiveObjects": [],
+        "Buttons": []
     }
 
 
     # Initialize game variables
     placeMode = True
+
+    # Make buttons
+    testButton = Button(20, 780, (200, 75), buttonFunction, "Test", 36, [grey, black], hold=False)
+    all_objects["Buttons"].append(testButton)
 
     # endregion
 
@@ -213,6 +222,21 @@ def main():
                     placement_state = 0
                     break
         
+        # Update cursor
+        if placeMode:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+        else:
+            if placement_state == 0:
+                pygame.mouse.set_cursor(uparrow_bm)
+            elif placement_state == -1:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+            else:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_NO)
+        
+        # Process buttons
+        for button in all_objects["Buttons"]:
+            button.update()
+            
         # endregion
             
         # region --- HANDLE EVENTS --- 
@@ -253,6 +277,8 @@ def main():
                             
             # region In "M" mode    
             else:
+                if left_click and right_click:
+                        continue
                 # Left click = upgrade box
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if left_click:
@@ -265,18 +291,10 @@ def main():
         # endregion
 
         # region --- CREATE VISUAL OBJECTS ---
-        
-        # Update cursor
-        if placeMode:
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
-        else:
-            if placement_state == 0:
-                pygame.mouse.set_cursor(uparrow_bm)
-            elif placement_state == -1:
-                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
-            else:
-                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_NO)
 
+        # Draw buttons
+        for button in all_objects["Buttons"]:
+            button.draw(screen)
 
         # Draw current boxes
         for box in all_objects["Boxes"]:
