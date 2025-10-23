@@ -1,6 +1,6 @@
 import pygame
 
-thickarrow_strings = (
+uparrow = (
   "           xx           ",
   "          x..x          ",
   "         x....x         ",
@@ -26,6 +26,6 @@ thickarrow_strings = (
   "                        ",
   "                        ")
 
-thickarrow_bm = pygame.cursors.Cursor(
-    (24, 24), (0, 0), *pygame.cursors.compile(thickarrow_strings, black='x', white='.')
+uparrow_bm = pygame.cursors.Cursor(
+    (24, 24), (0, 0), *pygame.cursors.compile(uparrow, black='x', white='.')
 )

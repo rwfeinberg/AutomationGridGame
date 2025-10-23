@@ -23,6 +23,10 @@ class Box:
 
         # Draw box on map
         background.blit(self.surf, self.rect)
+    
+    def upgrade(self, background, color):
+        self.level += 1
+        self.draw(background, color)
         
         
         
