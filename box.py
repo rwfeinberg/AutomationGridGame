@@ -13,9 +13,15 @@ class Box:
         return f"{self.id}"
     
     def draw(self, background, color):
-        # font = pygame.freetype.Font("arial.ttf", 42)
-        # font.render_to(rect_surf, (0, 0), "TEST", (0, 0, 0))
+        # Make box grey
         self.surf.fill(color)
+
+        # Write level to box
+        font = pygame.freetype.Font("arial.ttf", 42)
+        fontsurf, fontrect = font.render(str(self.level), (0, 0, 0))
+        self.surf.blit(fontsurf, fontsurf.get_rect(center=(self.size//2, self.size//2)))
+
+        # Draw box on map
         background.blit(self.surf, self.rect)
         
         
