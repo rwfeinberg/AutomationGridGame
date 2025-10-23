@@ -2,7 +2,7 @@ import pygame
 from box import Box
 from cursors import uparrow_bm
 
-# Variables
+# region Variables
 FPS = 120
 
 PRINT = False
@@ -26,7 +26,9 @@ box_buffer = None # calculated
 box_size = None # calculated
 mapsize = None # calculated
 
-# Helper functions
+# endregion
+
+# region Helper functions
 def renderText(msg, font, fontsize, color, bgcolor, x, y, alignmentType, scrn):
     font = pygame.font.SysFont(font, fontsize, bold=True)
     helptext = font.render(msg, True, color, bgcolor)
@@ -129,11 +131,13 @@ def getValidY(validy):
     while y_iter < limit:
         validy.append(y_iter)
         y_iter += box_size + box_buffer
-    
+
+# endregion
+        
 mapsize, box_buffer, box_size = calculateMap(screensize, boxes_per_row, edge_buffer)
 
 def main():
-    # Initialize
+    # region Initialization
     pygame.init()
 
     screen = pygame.display.set_mode((screensize, screensize))
@@ -169,6 +173,8 @@ def main():
     # Initialize game variables
     placeMode = True
 
+    # endregion
+
     # Event loop
     while True:
         # Initial things
@@ -178,7 +184,7 @@ def main():
         # Set game states
         can_place_box = 1 # 0 = False, 1 = True, -1 = Out of Bounds
 
-        # --- LOGIC ---
+        # region --- LOGIC ---
 
         mouse_x = pygame.mouse.get_pos()[0] - edge_buffer
         mouse_y = pygame.mouse.get_pos()[1] - edge_buffer
@@ -195,9 +201,11 @@ def main():
             if box.rect.colliderect(all_objects["placementbox"]):
                 can_place_box = 0
                 break
-
-        # --- HANDLE EVENTS --- 
-
+        
+        # endregion
+            
+        # region --- HANDLE EVENTS --- 
+            
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
@@ -212,7 +220,7 @@ def main():
 
             left_click, middle_click, right_click = pygame.mouse.get_pressed(num_buttons=3)
 
-            # In Placement mode
+            # region In Placement mode
             if placeMode:
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     # No action if both clicks simultaneously
@@ -230,7 +238,9 @@ def main():
                             collide_box = all_objects["placementbox"].collideobjects(all_objects["Boxes"])
                             all_objects["Boxes"].remove(collide_box)
 
-            # In "M" mode    
+            # endregion
+                            
+            # region In "M" mode    
             else:
                 # Left click = upgrade box
                 if event.type == pygame.MOUSEBUTTONDOWN:
@@ -238,10 +248,12 @@ def main():
                         if (can_place_box == 0) and all_objects["Boxes"]:
                             collide_box = all_objects["placementbox"].collideobjects(all_objects["Boxes"])
                             collide_box.upgrade(background, grey)
+            
+            # endregion
+                            
+        # endregion
 
-
-
-        # --- CREATE VISUAL OBJECTS ---
+        # region --- CREATE VISUAL OBJECTS ---
         
         # Update cursor
         if placeMode:
@@ -269,6 +281,8 @@ def main():
 
         # Draw text
         createScreenText(mouse_x, mouse_y, background, clock)
+
+        # endregion
 
         # --- RENDER ---
         screen.blit(background, (edge_buffer, edge_buffer))
