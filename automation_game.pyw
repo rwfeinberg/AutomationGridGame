@@ -1,10 +1,12 @@
 import pygame
 from box import Box
+from cursors import thickarrow_bm
 
 # Variables
 FPS = 120
 
 PRINT = False
+SHOW_MOUSE_POS = False
 
 black = (0, 0, 0)
 white = (255, 255, 255)
@@ -41,9 +43,10 @@ def renderText(msg, font, fontsize, color, bgcolor, x, y, alignmentType, scrn):
     scrn.blit(helptext, helptextrect)
 
 def createScreenText(mouse_x, mouse_y, background, clock):
-    # mousepostext = str(mouse_x) + ", " + str(mouse_y)
-    # mousepostextx, mousepostexty = (0, 0)
-    # renderText(mousepostext, "arial", 40, black, None, mousepostextx, mousepostexty, "topleft", background)
+    if SHOW_MOUSE_POS:
+        mousepostext = str(mouse_x) + ", " + str(mouse_y)
+        mousepostextx, mousepostexty = (0, 0)
+        renderText(mousepostext, "arial", 40, black, None, mousepostextx, mousepostexty, "topleft", background)
 
     fpstext = "fps: " + str(int(clock.get_fps()))
     fpstextx, fpstexty = (mapsize-edge_buffer, 0)
@@ -177,6 +180,7 @@ def main():
 
         # Check if placement is out of bounds
         if placeMode:
+            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
             if "placementbox" in all_objects:
                 placementx = all_objects["placementbox"].x
                 placementy = all_objects["placementbox"].y
@@ -224,6 +228,7 @@ def main():
 
             # In "M" mode    
             else:
+                pygame.mouse.set_cursor(thickarrow_bm)
                 pass
 
         # --- CREATE VISUAL OBJECTS ---
@@ -242,9 +247,7 @@ def main():
         createScreenText(mouse_x, mouse_y, background, clock)
 
         # --- RENDER ---
-        
         screen.blit(background, (edge_buffer, edge_buffer))
-
         pygame.display.flip()
        
 
