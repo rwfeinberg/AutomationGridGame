@@ -4,6 +4,8 @@ from box import Box
 # Variables
 FPS = 120
 
+PRINT = False
+
 black = (0, 0, 0)
 white = (255, 255, 255)
 yellow = (255, 255, 25)
@@ -12,7 +14,7 @@ light_grey = (200, 200, 200)
 light_green = (173, 247, 193)
 light_red = (242, 136, 136)
 
-screensize = 1020 # choose
+screensize = 800 # choose
 edge_buffer = 16 # choose
 boxes_per_row = 8 # choose
 
@@ -83,6 +85,8 @@ def addBox(valid_x, valid_y, mouse_x, mouse_y, all_objects):
             break
 
     box = Box(1, closest_x, closest_y, box_size)
+    if PRINT:
+        print(box)
 
     all_objects["Boxes"].append(box)
     all_objects["ActiveObjects"].append(box)
