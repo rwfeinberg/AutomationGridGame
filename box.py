@@ -17,7 +17,7 @@ class Box:
         self.surf.fill(color)
 
         # Write level to box
-        font = pygame.freetype.Font("arial.ttf", 42)
+        font = pygame.freetype.Font("Futura Bold.otf", 42)
         fontsurf, fontrect = font.render(str(self.level), (0, 0, 0))
         self.surf.blit(fontsurf, fontsurf.get_rect(center=(self.size//2, self.size//2)))
 
