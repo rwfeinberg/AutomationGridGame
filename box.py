@@ -24,6 +24,7 @@ class Box:
         # Draw box on map
         background.blit(self.surf, self.rect)
     
+    # Increase level and re-draw
     def upgrade(self, background, color):
         self.level += 1
         self.draw(background, color)

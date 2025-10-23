@@ -1,6 +1,7 @@
 import pygame
 from box import Box
 from cursors import uparrow_bm
+from tkinter import Tk
 
 # region Variables
 FPS = 120
@@ -18,7 +19,15 @@ light_green = (173, 247, 193)
 light_red = (242, 136, 136)
 blue = (28, 2, 227)
 
-screensize = 800 # choose
+# Finding monitor size
+temproot = Tk()
+temproot.withdraw()
+resolution_x, resolution_y = temproot.winfo_screenwidth(), temproot.winfo_screenheight()
+
+print(resolution_x, resolution_y)
+
+screensize = resolution_y - 300
+menu_size = resolution_y - screensize - 150 # choose (should be static?)
 edge_buffer = 16 # choose
 boxes_per_row = 8 # choose
 
@@ -140,7 +149,7 @@ def main():
     # region Initialization
     pygame.init()
 
-    screen = pygame.display.set_mode((screensize, screensize))
+    screen = pygame.display.set_mode((screensize, screensize + menu_size))
     screen.fill(white)
     pygame.display.set_caption("Automation")  
     clock = pygame.time.Clock()
