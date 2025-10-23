@@ -7,7 +7,7 @@ from tkinter import Tk
 FPS = 120
 
 PRINT = False
-SHOW_MOUSE_POS = False
+SHOW_MOUSE_POS = True
 SHOW_FPS = False
 
 black = (0, 0, 0)
@@ -73,7 +73,7 @@ def drawPlacementRect(background, rect, color, alpha):
     pygame.draw.rect(rect_surf, color, rect_surf.get_rect())
     background.blit(rect_surf, rect)
 
-def makeAndDrawPlacementBox(valid_x, valid_y, mouse_x, mouse_y, all_objects):
+def makePlacementBox(valid_x, valid_y, mouse_x, mouse_y, all_objects):
     for vx in valid_x:
         closest_x = vx
         if vx > mouse_x - box_size:
@@ -87,8 +87,6 @@ def makeAndDrawPlacementBox(valid_x, valid_y, mouse_x, mouse_y, all_objects):
     placement_box = pygame.Rect(closest_x, closest_y, box_size, box_size)
     all_objects["placementbox"] = placement_box
     all_objects["ActiveObjects"].append(placement_box)
-
-    return placement_box
 
 def addBox(valid_x, valid_y, mouse_x, mouse_y, all_objects):
     for vx in valid_x:
@@ -191,25 +189,29 @@ def main():
         background.fill(light_grey)
 
         # Set game states
-        can_place_box = 1 # 0 = False, 1 = True, -1 = Out of Bounds
+        placement_state = 1 # 0 = Box Collision, 1 = Open Square, -1 = Out of Bounds
 
         # region --- LOGIC ---
 
         mouse_x = pygame.mouse.get_pos()[0] - edge_buffer
         mouse_y = pygame.mouse.get_pos()[1] - edge_buffer
 
-        # Check placement box position
-        if "placementbox" in all_objects:
-            placementx = all_objects["placementbox"].x
-            placementy = all_objects["placementbox"].y
-            if placementx < 0 or placementx > (mapsize-box_size) or placementy < 0 or placementy > (mapsize-box_size):
-                can_place_box = -1
+        # If out of bounds, remove placementbox
+        if (mouse_x < 0) or (mouse_x > mapsize) or (mouse_y < 0) or (mouse_y > mapsize):
+            placement_state = -1
+            if "placementbox" in all_objects:
+                all_objects.pop("placementbox")
+        
+        # If in bounds, make placementBox
+        if not placement_state == -1:
+            makePlacementBox(valid_x, valid_y, mouse_x, mouse_y, all_objects)
 
-        # Check if placement is colliding with a box
-        for box in all_objects["Boxes"]:
-            if box.rect.colliderect(all_objects["placementbox"]):
-                can_place_box = 0
-                break
+        # Check if placement box is over a box
+        if "placementbox" in all_objects:
+            for box in all_objects["Boxes"]:
+                if box.rect.colliderect(all_objects["placementbox"]):
+                    placement_state = 0
+                    break
         
         # endregion
             
@@ -238,12 +240,12 @@ def main():
 
                     # Left click = Place box
                     if left_click:
-                        if can_place_box == 1:
+                        if placement_state == 1:
                             addBox(valid_x, valid_y, mouse_x, mouse_y, all_objects)
 
                     # Right click = Delete box
                     elif right_click:
-                        if (can_place_box == 0) and all_objects["Boxes"]:
+                        if (placement_state == 0) and all_objects["Boxes"]:
                             collide_box = all_objects["placementbox"].collideobjects(all_objects["Boxes"])
                             all_objects["Boxes"].remove(collide_box)
 
@@ -254,7 +256,7 @@ def main():
                 # Left click = upgrade box
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if left_click:
-                        if (can_place_box == 0) and all_objects["Boxes"]:
+                        if (placement_state == 0) and all_objects["Boxes"]:
                             collide_box = all_objects["placementbox"].collideobjects(all_objects["Boxes"])
                             collide_box.upgrade(background, grey)
             
@@ -268,8 +270,10 @@ def main():
         if placeMode:
             pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
         else:
-            if can_place_box == 0:
+            if placement_state == 0:
                 pygame.mouse.set_cursor(uparrow_bm)
+            elif placement_state == -1:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
             else:
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_NO)
 
@@ -279,14 +283,13 @@ def main():
             box.draw(background, grey)
 
         # Draw placement box
-        if placeMode:
-            placement_box = makeAndDrawPlacementBox(valid_x, valid_y, mouse_x, mouse_y, all_objects)
-            placement_box_color = light_green if can_place_box else light_red
-            drawPlacementRect(background, placement_box, placement_box_color, 128)
-        else:
-            placement_box = makeAndDrawPlacementBox(valid_x, valid_y, mouse_x, mouse_y, all_objects)
-            placement_box_color = blue
-            drawPlacementRect(background, placement_box, placement_box_color, 128)
+        if "placementbox" in all_objects:
+            if placeMode:
+                placement_box_color = light_green if placement_state else light_red
+                drawPlacementRect(background, all_objects["placementbox"], placement_box_color, 128)
+            else:
+                placement_box_color = blue
+                drawPlacementRect(background, all_objects["placementbox"], placement_box_color, 128)
 
         # Draw text
         createScreenText(mouse_x, mouse_y, background, clock)
