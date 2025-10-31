@@ -9,6 +9,8 @@ FPS = 120
 
 BOX_UPDATE_TIME = 1000 # in ms
 
+BOX_COST = 10
+
 PRINT = False
 SHOW_MOUSE_POS = False
 SHOW_FPS = False
@@ -43,8 +45,6 @@ box_size = None # calculated
 mapsize = None # calculated
 
 # endregion
-
-
 
 # region Helper functions
 def renderText(msg, font, fontsize, color, bgcolor, x, y, alignmentType, scrn):
@@ -109,7 +109,8 @@ def addBox(valid_x, valid_y, mouse_x, mouse_y, all_objects):
         if vy > mouse_y - box_size:
             break
 
-    box = Box(1, closest_x, closest_y, box_size)
+    box = Box(1, BOX_COST, closest_x, closest_y, box_size)
+
     if PRINT:
         print(box)
 
@@ -184,17 +185,17 @@ def main():
     if not (len(valid_x) == len(valid_y)) or not(len(valid_x) == boxes_per_row):
         print("MAP ERROR")
 
+    # Make game dictionary
     all_objects = {
         "Boxes": [],
         "ActiveObjects": [],
         "Buttons": []
     }
 
-
     # Initialize game variables
     placeMode = True
 
-    # Events
+    # Initialize custom events
     box_update_event = pygame.USEREVENT + 1
     pygame.time.set_timer(box_update_event, BOX_UPDATE_TIME)
 
@@ -203,7 +204,7 @@ def main():
     all_objects["Buttons"].append(testButton)
 
     # Set Score
-    score = 0
+    score = 10
 
     # endregion
 
@@ -291,8 +292,9 @@ def main():
 
                     # Left click = Place box
                     if left_click:
-                        if placement_state == 1:
-                            addBox(valid_x, valid_y, mouse_x, mouse_y, all_objects)
+                        if placement_state == 1 and score >= BOX_COST:
+                            b = addBox(valid_x, valid_y, mouse_x, mouse_y, all_objects)
+                            score -= b.cost
 
                     # Right click = Delete box
                     elif right_click:
@@ -332,7 +334,7 @@ def main():
         # Draw placement box
         if "placementbox" in all_objects:
             if placeMode:
-                placement_box_color = light_green if placement_state else light_red
+                placement_box_color = light_green if (placement_state and score >= BOX_COST) else light_red
                 drawPlacementRect(background, all_objects["placementbox"], placement_box_color, 128)
             else:
                 placement_box_color = blue

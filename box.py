@@ -2,8 +2,9 @@ import pygame
 import pygame.freetype
 
 class Box:
-    def __init__(self, level, closest_x, closest_y, box_size):
+    def __init__(self, level, cost, closest_x, closest_y, box_size):
         self.level = level
+        self.cost = cost
         self.size = box_size
         self.surf = pygame.Surface((box_size, box_size))
         self.rect = self.surf.get_rect(topleft=(closest_x, closest_y))
