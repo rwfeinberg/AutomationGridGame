@@ -12,6 +12,9 @@ class Box:
     def __str__(self):
         return f"{self.id}"
     
+    def update(self):
+        return self.level
+    
     def draw(self, background, color):
         # Make box grey
         self.surf.fill(color)

@@ -7,8 +7,10 @@ from button import Button
 # region Variables
 FPS = 120
 
+BOX_UPDATE_TIME = 1000 # in ms
+
 PRINT = False
-SHOW_MOUSE_POS = True
+SHOW_MOUSE_POS = False
 SHOW_FPS = False
 
 black = (0, 0, 0)
@@ -42,11 +44,14 @@ mapsize = None # calculated
 
 # endregion
 
+
+
 # region Helper functions
 def renderText(msg, font, fontsize, color, bgcolor, x, y, alignmentType, scrn):
-    font = pygame.font.SysFont(font, fontsize, bold=True)
+    font = pygame.font.Font(font, fontsize)
     helptext = font.render(msg, True, color, bgcolor)
     helptextrect = helptext.get_rect()
+
     match alignmentType:
         case "topleft":
             helptextrect.topleft = (x, y)
@@ -58,19 +63,19 @@ def renderText(msg, font, fontsize, color, bgcolor, x, y, alignmentType, scrn):
             helptextrect.bottomleft = (x, y)
         case "bottomright":
             helptextrect.bottomright = (x, y)
+
     scrn.blit(helptext, helptextrect)
 
 def createScreenText(mouse_x, mouse_y, background, clock):
     if SHOW_MOUSE_POS:
         mousepostext = str(mouse_x) + ", " + str(mouse_y)
         mousepostextx, mousepostexty = (0, 0)
-        renderText(mousepostext, "arial", 40, black, None, mousepostextx, mousepostexty, "topleft", background)
+        renderText(mousepostext, "arial.ttf", 40, black, None, mousepostextx, mousepostexty, "topleft", background)
 
     if SHOW_FPS:
         fpstext = "fps: " + str(int(clock.get_fps()))
         fpstextx, fpstexty = (mapsize-edge_buffer, 0)
-        renderText(fpstext, "arial", 28, black, None, fpstextx, fpstexty, "topright", background)
-    pass
+        renderText(fpstext, "arial.ttf", 28, black, None, fpstextx, fpstexty, "topright", background)
 
 def drawPlacementRect(background, rect, color, alpha):
     placement_surf = pygame.Surface(rect.size)
@@ -189,9 +194,16 @@ def main():
     # Initialize game variables
     placeMode = True
 
+    # Events
+    box_update_event = pygame.USEREVENT + 1
+    pygame.time.set_timer(box_update_event, BOX_UPDATE_TIME)
+
     # Make buttons
     testButton = Button(edge_buffer, mapsize+edge_buffer+y_offset, (200, 75), buttonFunction, "Test", 36, [grey, black], hold=False)
     all_objects["Buttons"].append(testButton)
+
+    # Set Score
+    score = 0
 
     # endregion
 
@@ -236,11 +248,11 @@ def main():
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
             else:
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_NO)
-        
+
         # Process buttons
         for button in all_objects["Buttons"]:
             button.update()
-            
+        
         # endregion
             
         # region --- HANDLE EVENTS --- 
@@ -248,7 +260,9 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
-            if event.type == pygame.KEYDOWN:
+            
+            # Read key presses
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     return
                 elif event.key == pygame.K_m:
@@ -256,6 +270,15 @@ def main():
                         placeMode = False
                     else:
                         placeMode = True
+
+            # Update boxes event
+            elif event.type == box_update_event:
+                # Update Boxes
+                for box in all_objects["Boxes"]:
+                    box_add = box.update()
+                    score += box_add
+
+            
 
             left_click, middle_click, right_click = pygame.mouse.get_pressed(num_buttons=3)
 
@@ -296,6 +319,8 @@ def main():
 
         # region --- CREATE VISUAL OBJECTS ---
 
+        screen.fill(white)
+
         # Draw current boxes
         for box in all_objects["Boxes"]:
             box.draw(background, grey)
@@ -315,6 +340,8 @@ def main():
 
         # Draw text
         createScreenText(mouse_x, mouse_y, background, clock)
+
+        renderText(f"Score: {score}", "Futura Bold.otf", 40, black, None, screensize//2, 20, "center", screen)
 
         # endregion
 
