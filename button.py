@@ -15,10 +15,12 @@ class Button:
         self.text = text
         self.hold = hold
         self.alreadyPressed = False
+        
+        self.enabled = True
 
         self.surf = pygame.Surface((self.width, self.height))
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.textSurf = self.font.render(text, True, colors[1])
+        self.textSurf = self.font.render(self.text, True, colors[1])
     
     
     def __str__(self):
@@ -29,18 +31,22 @@ class Button:
         mousePos = pygame.mouse.get_pos()
 
         # If hovered
-        if self.rect.collidepoint(mousePos):
-            pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+        if self.enabled:
+            if self.rect.collidepoint(mousePos):
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
 
-            # If clicked
-            if pygame.mouse.get_pressed(num_buttons=3)[0]:
-                if self.hold:
-                    self.clickFunction()
-                elif not self.alreadyPressed:
-                    self.clickFunction()
-                    self.alreadyPressed = True
-            else:
-                self.alreadyPressed = False
+                # If clicked
+                if pygame.mouse.get_pressed(num_buttons=3)[0]:
+                    if self.hold:
+                        self.clickFunction()
+                    elif not self.alreadyPressed:
+                        self.clickFunction()
+                        self.alreadyPressed = True
+                else:
+                    self.alreadyPressed = False
+    
+    def disable(self):
+        self.enabled = False
 
     def draw(self, background):
         # Draw button
