@@ -27,10 +27,14 @@ resolution_x, resolution_y = temproot.winfo_screenwidth(), temproot.winfo_screen
 
 print(resolution_x, resolution_y)
 
-screensize = resolution_y - 300
-menu_size = resolution_y - screensize - 150 # choose (should be static?)
+screensize = resolution_y - 500
+menu_size = resolution_y - screensize - 400 # choose (should be static?)
+top_size = 80
 edge_buffer = 16 # choose
 boxes_per_row = 8 # choose
+
+x_offset = edge_buffer # from left, adjust if necessary
+y_offset = edge_buffer + top_size # from top, adjust if necessary
 
 box_buffer = None # calculated
 box_size = None # calculated
@@ -151,7 +155,7 @@ def main():
     # region Initialization
     pygame.init()
 
-    screen = pygame.display.set_mode((screensize, screensize + menu_size))
+    screen = pygame.display.set_mode((screensize, top_size + screensize + menu_size))
     screen.fill(white)
     pygame.display.set_caption("Automation")  
     clock = pygame.time.Clock()
@@ -161,7 +165,7 @@ def main():
     background.fill(light_grey)
 
     # Initial blit
-    screen.blit(background, (edge_buffer, edge_buffer))
+    screen.blit(background, (x_offset, y_offset))
     pygame.display.flip()
 
     # Create snap-to-grid ; defined by topleft of box
@@ -186,7 +190,7 @@ def main():
     placeMode = True
 
     # Make buttons
-    testButton = Button(20, 780, (200, 75), buttonFunction, "Test", 36, [grey, black], hold=False)
+    testButton = Button(edge_buffer, mapsize+edge_buffer+y_offset, (200, 75), buttonFunction, "Test", 36, [grey, black], hold=False)
     all_objects["Buttons"].append(testButton)
 
     # endregion
@@ -202,8 +206,8 @@ def main():
 
         # region --- LOGIC ---
 
-        mouse_x = pygame.mouse.get_pos()[0] - edge_buffer
-        mouse_y = pygame.mouse.get_pos()[1] - edge_buffer
+        mouse_x = pygame.mouse.get_pos()[0] - x_offset
+        mouse_y = pygame.mouse.get_pos()[1] - y_offset
 
         # If out of bounds, remove placementbox
         if (mouse_x < 0) or (mouse_x > mapsize) or (mouse_y < 0) or (mouse_y > mapsize):
@@ -292,13 +296,13 @@ def main():
 
         # region --- CREATE VISUAL OBJECTS ---
 
-        # Draw buttons
-        for button in all_objects["Buttons"]:
-            button.draw(screen)
-
         # Draw current boxes
         for box in all_objects["Boxes"]:
             box.draw(background, grey)
+
+        # Draw buttons
+        for button in all_objects["Buttons"]:
+            button.draw(screen)
 
         # Draw placement box
         if "placementbox" in all_objects:
@@ -315,7 +319,7 @@ def main():
         # endregion
 
         # --- RENDER ---
-        screen.blit(background, (edge_buffer, edge_buffer))
+        screen.blit(background, (x_offset, y_offset))
         pygame.display.flip()
        
 

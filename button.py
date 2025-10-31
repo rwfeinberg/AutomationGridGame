@@ -11,13 +11,19 @@ class Button:
         self.height = size[1]
         self.colors = colors
         self.clickFunction = clickFunction
-        self.font = pygame.font.SysFont('Futura Bold.otf', textSize)
+        self.font = pygame.font.Font('Futura Bold.otf', textSize)
+        self.text = text
         self.hold = hold
         self.alreadyPressed = False
 
         self.surf = pygame.Surface((self.width, self.height))
         self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
         self.textSurf = self.font.render(text, True, colors[1])
+    
+    
+    def __str__(self):
+        print(f"{self.text}@{self.x},{self.y}")
+        pass
     
     def update(self):
         mousePos = pygame.mouse.get_pos()
